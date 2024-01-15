@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+</head>
+
+<body>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js"
+        integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
+        crossorigin="anonymous"></script>
+
+    <div class="container-fluid bg-light" style="height:120px; width:100%">
+        <div class="row">
+            <div class="col d-flex justify-content-center">
+                <h1 class="text-primary ">TODO Lists</h1>
+            </div>
+        </div>
+
+    </div>
+    <div class="row m-5">
+        <div class="col-md-5  ">
+            <div class="input-group mb-3">
+                <span class="input-group-text" id="basic-addon1">Text</span>
+                <input type="text" id="msg" value="" class="form-control" placeholder="Enter a value or text"
+                    aria-label="Username" aria-describedby="basic-addon1">
+                <button type="button" id="submit" class="btn btn-primary">ADD</button>
+
+            </div>
+        </div>
+    </div>
+    <hr width="100%">
+
+    <div class="row">
+        <div class="col d-flex justify-content-between">
+            <div>
+                <h5><b>Total count :</b><span id="count">0</span></h5>
+            </div>
+
+            <div>
+                <button type="button" id="clear" class="btn btn-danger">Clear All Data</button>
+            </div>
+        </div>
+    </div>
+
+    <hr width="100%" color="blue">
+    <div class="row d-flex m-3" id="body"></div>
+    </div>
+    <script>
+        let submit = document.getElementById('submit');
+        let clear = document.getElementById('clear')
+        let isEdit='';
+
+        //Global empty Array is declared 
+        let gArr = [];
+       function setData(data)
+       {
+        localStorage.setItem('todo',JSON.stringify(data))
+       }
+       function getData()
+       {
+        gArr=localStorage.getItem('todo') ? JSON.parse(localStorage.getItem('todo')):[]
+       }
+        cardPrint();
+
+        //Event for submit Button
+        submit.addEventListener('click', todoHandler)
+
+        function todoHandler() {
+            let msg = document.getElementById('msg')
+            if (!msg.value) {
+                alert('You must have to give an item name');
+            } else {
+                if (isEdit)
+                {
+                    let newArray= gArr.map((item)=>{
+                        if(item.id==isEdit.id)
+                        {
+                            let obj={id:item.id,text:msg.value}
+                            return obj
+                        } else {
+                            return item
+                        }
+                    })
+                    gArr=newArray
+                    isEdit=''
+                    submit.innerText="Add"
+                } else {
+                let obj = {
+                    id: Math.trunc(Math.random() * 10000),
+                    text: msg.value 
+                };
+                gArr.unshift(obj);
+                }
+                setData(gArr)
+                cardPrint()
+            
+        }
+        msg.value = "";
+        }
+
+        //function for deleting the card 
+        function deleteHandler(id) {
+            gArr = gArr.filter((item) => {
+                return item.id != id
+            })
+            setData(gArr)
+            cardPrint();
+        }
+
+
+        function editHandler(id)
+        {
+           let findData= gArr.find((item) =>{
+            return item.id == id
+           })
+           isEdit=findData
+           msg.value=findData.text 
+           submit.innerText="Update"
+        }
+
+        function cardPrint() {
+            let template = "";
+            let body = document.getElementById('body');
+            let count = document.getElementById('count')
+            let todoLength = gArr.length;
+            if (gArr.length == 0) {
+                template += '<h4 style:"text-align:center; align-item:center">NO DATA</h4>'
+            } else {
+                gArr.forEach((item) => {
+                    console.log("testing", item);
+                    template += `<div class="row" style="display:inline">
+                    <div class="col-md-3 m-3 " >
+                        <div class="card bg-dark text-white ">
+                            <div class="card-body">
+                                <p>${item.text}</p>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="d-flex justify-content-between ">
+                                        <button class="btn btn-warning" onclick="editHandler(${item.id})" > Edit </button>
+                                        <button class="btn btn-danger" onclick="deleteHandler(${item.id})" > Delete  </button>
+                                        </div>
+                                        </div>
+                                        </div>
+                                        </div>`;
+                })
+            }
+            body.innerHTML = template;
+            count.innerText = todoLength;
+        }
+        //this function is for clear all the inputs 
+        clear.addEventListener('click',()=>
+        {
+            gArr=[];
+            cardPrint()
+        })
+
+
+
+
+    </script>
+
+
+</body>
+
+</html>
